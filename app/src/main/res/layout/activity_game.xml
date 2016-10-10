@@ -34,10 +34,9 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:rotation="90"
                 android:id="@+id/barriers_player1"
-                android:layout_marginRight="50dip"
-                android:layout_marginLeft="50dip"
+                android:layout_marginRight="40dip"
+                android:layout_marginLeft="40dip"
                 android:background="@drawable/light_wood" />
             <TextView
                 android:layout_width="wrap_content"
@@ -76,9 +75,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/barriers_player2"
-                android:rotation="90"
-                android:layout_marginRight="50dip"
-                android:layout_marginLeft="50dip"
+                android:layout_marginRight="40dip"
+                android:layout_marginLeft="40dip"
                 android:background="@drawable/light_wood" />
             <TextView
                 android:layout_width="wrap_content"

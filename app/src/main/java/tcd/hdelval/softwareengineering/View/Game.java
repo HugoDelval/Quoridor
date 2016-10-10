@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
@@ -151,6 +152,16 @@ public class Game extends AppCompatActivity {
                         firstImagePawn = (ImageView) findViewById(R.id.pion1);
                         secondImagePawn = (ImageView) findViewById(R.id.pion2);
                         boardLayoutWrapper = (LinearLayout) findViewById(R.id.board_layout_wrapper);
+
+                        ImageView barriersP1 = (ImageView) findViewById(R.id.barriers_player1);
+                        ViewGroup.LayoutParams barriersP1LayoutParams = barriersP1.getLayoutParams();
+                        barriersP1LayoutParams.height = squareSize*2 + widthBarrier;
+                        barriersP1LayoutParams.width = widthBarrier;
+                        barriersP1.setLayoutParams(barriersP1LayoutParams);
+                        barriersP1.setOnTouchListener(
+                                new Listeners.BarrierTouchListener(barriers, interBarriers, board, widthBarrier, squareSize)
+                        );
+                        barriers.get(1).setOnDragListener(new Listeners.BarrierDragListener(barriersP1));
 
                         secondImagePawn.setOnClickListener(new View.OnClickListener(){
                             @Override
