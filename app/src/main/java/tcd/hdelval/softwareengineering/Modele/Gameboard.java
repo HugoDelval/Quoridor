@@ -1,22 +1,27 @@
 package tcd.hdelval.softwareengineering.Modele;
 
+import android.util.SparseArray;
+
 import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Created by hdelval on 04/10/16.
  */
 
-public enum Gameboard {
-    THE_GAME_BOARD;
-    private HashMap<Integer, Square> theGameBoard;
+public class Gameboard {
+    private SparseArray<Square> theGameBoard;
     public Square positionPlayer1;
     public Square positionPlayer2;
+    private int nbBarriersP1 = 10;
+    private int nbBarriersP2 = 10;
 
-    Gameboard(){
-        theGameBoard = new HashMap<>();
+
+    public Gameboard(){
+        theGameBoard = new SparseArray<>();
         for(int x=0; x<9; x++)
             for(int y=0; y<9; y++){
-                Square squareToAdd = new Square(x, y);
+                Square squareToAdd = new Square(x, y, this);
                 theGameBoard.put(getIdFromCoord(x,y), squareToAdd);
             }
         for(int x=0; x<9; x++)
@@ -50,5 +55,38 @@ public enum Gameboard {
 
     public Square getSquareFromId(int squareId){
         return theGameBoard.get(squareId);
+    }
+
+    public void removeBarrierP1() {
+        nbBarriersP1--;
+    }
+
+    public void removeBarrierP2() {
+        nbBarriersP2--;
+    }
+
+    public int getNbBarriersP1() {
+        return nbBarriersP1;
+    }
+
+    public int getNbBarriersP2() {
+        return nbBarriersP2;
+    }
+
+    public boolean floodFillGamePlayable() {
+        return floodFill(positionPlayer1, 8, new LinkedList<Square>()) && floodFill(positionPlayer2, 0, new LinkedList<Square>());
+    }
+
+    private boolean floodFill(Square positionSeed, int goal, LinkedList<Square> visited) {
+        if(positionSeed.getY() == goal)
+            return true;
+        visited.add(positionSeed);
+        for (Square neighbour : positionSeed.getNeighbours()) {
+            if(!visited.contains(neighbour)){
+                if(floodFill(neighbour, goal, visited))
+                    return true;
+            }
+        }
+        return false;
     }
 }

@@ -35,13 +35,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/barriers_player1"
-                android:layout_marginRight="40dip"
-                android:layout_marginLeft="40dip"
+                android:layout_marginRight="20dip"
+                android:layout_marginLeft="20dip"
                 android:background="@drawable/light_wood" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="x10"
+                android:id="@+id/nb_barriers_p1"
                 android:textColor="@color/colorText"
                 android:textSize="40dip"/>
         </LinearLayout>
@@ -75,12 +76,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/barriers_player2"
-                android:layout_marginRight="40dip"
-                android:layout_marginLeft="40dip"
+                android:layout_marginRight="20dip"
+                android:layout_marginLeft="20dip"
                 android:background="@drawable/light_wood" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/nb_barriers_p2"
                 android:text="x10"
                 android:textColor="@color/colorText"
                 android:textSize="40dip"/>

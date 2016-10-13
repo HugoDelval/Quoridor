@@ -10,6 +10,8 @@ import java.util.LinkedList;
  * Represent a square on the gameboard where a pawn can go
  */
 public class Square {
+    private final Gameboard gameBoard;
+
     /**
      * Horizontal coordinate of the square in the Gameboard
      */
@@ -37,10 +39,11 @@ public class Square {
      */
     private LinkedList<Square> accessibles = new LinkedList<>();
 
-    public Square(int x, int y){
+    public Square(int x, int y, Gameboard gameBoard){
         this.x = x;
         this.y = y;
         this.idSquare = x+y*9;
+        this.gameBoard = gameBoard;
     }
 
     public int getX() {
@@ -78,6 +81,11 @@ public class Square {
         }catch (Exception ignored){}
     }
 
+    public void addAccessible(Square accessible) {
+        if(accessible != null)
+            this.accessibles.add(accessible);
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Square && ((Square) obj).idSquare == this.idSquare;
@@ -89,13 +97,13 @@ public class Square {
     }
 
     public void calculateNeighbours() {
-        Square posP1 = Gameboard.THE_GAME_BOARD.positionPlayer1;
-        Square posP2 = Gameboard.THE_GAME_BOARD.positionPlayer2;
+        Square posP1 = gameBoard.positionPlayer1;
+        Square posP2 = gameBoard.positionPlayer2;
         Square posOtherPlayer = posP1.equals(this)?posP2:(posP2.equals(this)?posP1:null);
         neighbours = new LinkedList<>();
         for (Square accessibleSquare : accessibles) {
             if(posOtherPlayer != null && (accessibleSquare.equals(posP2) || accessibleSquare.equals(posP1))) {
-                Square above = Gameboard.THE_GAME_BOARD.getSquareFromCoord(2*posOtherPlayer.getX()-x, 2*posOtherPlayer.getY()-y);
+                Square above = gameBoard.getSquareFromCoord(2*posOtherPlayer.getX()-x, 2*posOtherPlayer.getY()-y);
                 if(posOtherPlayer.getAccessibles().contains(above)){
                     neighbours.add(above);
                 }else{

@@ -1,7 +1,9 @@
 package tcd.hdelval.softwareengineering.View;
 
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
@@ -11,22 +13,31 @@ import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
-import tcd.hdelval.softwareengineering.Controller.Controller;
+import tcd.hdelval.softwareengineering.controller.Controller;
 import tcd.hdelval.softwareengineering.Modele.Gameboard;
 import tcd.hdelval.softwareengineering.Modele.Square;
 import tcd.hdelval.softwareengineering.R;
+import tcd.hdelval.softwareengineering.Utils.CustomViews;
 import tcd.hdelval.softwareengineering.Utils.Listeners;
+import tcd.hdelval.softwareengineering.View.UndoRedo.UndoRedoHandler;
 
 public class Game extends AppCompatActivity {
 
+    public static final int MOVE_PAWN = 2;
+    public static final int BARRIER_PLAYED = 1;
     private ArrayList<FrameLayout> squares = new ArrayList<>();
     private ArrayList<FrameLayout> barriers = new ArrayList<>();
     private ArrayList<FrameLayout> interBarriers = new ArrayList<>();
-    private static int OFFSET_SQUARE = 1000;
-    private static int OFFSET_BARRIER = 2000;
-    private static int OFFSET_INTER_BARRIER = 3000;
+    public static int OFFSET_SQUARE = 1000;
+    public static int OFFSET_VERTICAL_BARRIER = 2000;
+    public static int OFFSET_HORIZONTAL_BARRIER = 3000;
+    public static int OFFSET_INTER_BARRIER = 4000;
     private int squareSize = 0;
     private GridLayout board;
     private int widthBarrier = 22;
@@ -35,10 +46,12 @@ public class Game extends AppCompatActivity {
     private FrameLayout firstPawnSquare;
     private FrameLayout secondPawnSquare;
     private LinearLayout boardLayoutWrapper;
-    private boolean firstPlayerToPlay = true;
     private boolean firstImagePawnSelected = false;
     private boolean secondImagePawnSelected = false;
     private Controller gameController;
+    private ImageView barriersP1;
+    private ImageView barriersP2;
+    private CustomViews.ImageDragShadowBuilder shadowBuilder;
 
     /**
      * Get the square at the coordinate (x,y)
@@ -66,6 +79,46 @@ public class Game extends AppCompatActivity {
         ImageView imagePawn = (ImageView) findViewById(androidPawnId);
         imagePawn.setX(pawnTargetPosition.getX() + boardLayoutWrapper.getX() + board.getX());
         imagePawn.setY(pawnTargetPosition.getY()+ boardLayoutWrapper.getY() + board.getY());
+        if(idPawn==2 && y==0){
+            new AlertDialog.Builder(this)
+                    .setTitle("Bottom player won!")
+                    .setMessage("Bottom player won ;) well played ! Quit ?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            firstImagePawn.setOnClickListener(null);
+                            secondImagePawn.setOnClickListener(null);
+                            barriersP1.setOnTouchListener(null);
+                            barriersP2.setOnTouchListener(null);
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+        }
+        if(idPawn==1 && y==8){
+            new AlertDialog.Builder(this)
+                    .setTitle("Top player won!")
+                    .setMessage("Top player won ;) well played ! Quit ?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            firstImagePawn.setOnClickListener(null);
+                            secondImagePawn.setOnClickListener(null);
+                            barriersP1.setOnTouchListener(null);
+                            barriersP2.setOnTouchListener(null);
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+        }
     }
 
     /**
@@ -109,7 +162,7 @@ public class Game extends AppCompatActivity {
                                         // squares
                                         params.height = squareSize;
                                         params.width = squareSize;
-                                        newObject.setId(OFFSET_SQUARE + line*9+col);
+                                        newObject.setId(OFFSET_SQUARE + (line/2)*9+(col/2));
                                         newObject.setBackgroundResource(R.drawable.dark_wood);
 
                                         squares.add(newObject);
@@ -118,8 +171,8 @@ public class Game extends AppCompatActivity {
                                         // verticals barriers
                                         params.height = squareSize;
                                         params.width = widthBarrier;
-                                        newObject.setId(OFFSET_BARRIER + line*9+col);
-
+                                        newObject.setId(OFFSET_VERTICAL_BARRIER + (line/2)*8+(col/2));
+                                        barriers.add(newObject);
                                         barriers.add(newObject);
                                     }
                                 }else{
@@ -128,14 +181,14 @@ public class Game extends AppCompatActivity {
                                         // horizontals barriers
                                         params.height = widthBarrier;
                                         params.width = squareSize;
-                                        newObject.setId(OFFSET_BARRIER + line*9+col);
+                                        newObject.setId(OFFSET_HORIZONTAL_BARRIER + (line/2)*9+(col/2));
 
                                         barriers.add(newObject);
                                     }else{
                                         // inter-barriers
                                         params.height = widthBarrier;
                                         params.width = widthBarrier;
-                                        newObject.setId(OFFSET_INTER_BARRIER + line*9+col);
+                                        newObject.setId(OFFSET_INTER_BARRIER + (line/2)*8+(col/2));
                                         newObject.setLayoutParams(params);
 
                                         interBarriers.add(newObject);
@@ -145,23 +198,40 @@ public class Game extends AppCompatActivity {
                                 board.addView(newObject);
                             }
                         }
-                        barriers.get(0).setBackgroundResource(R.drawable.light_wood);
-                        barriers.get(17).setBackgroundResource(R.drawable.light_wood);
-                        interBarriers.get(0).setBackgroundResource(R.drawable.light_wood);
 
                         firstImagePawn = (ImageView) findViewById(R.id.pion1);
                         secondImagePawn = (ImageView) findViewById(R.id.pion2);
                         boardLayoutWrapper = (LinearLayout) findViewById(R.id.board_layout_wrapper);
 
-                        ImageView barriersP1 = (ImageView) findViewById(R.id.barriers_player1);
+                        barriersP1 = (ImageView) findViewById(R.id.barriers_player1);
                         ViewGroup.LayoutParams barriersP1LayoutParams = barriersP1.getLayoutParams();
                         barriersP1LayoutParams.height = squareSize*2 + widthBarrier;
                         barriersP1LayoutParams.width = widthBarrier;
                         barriersP1.setLayoutParams(barriersP1LayoutParams);
-                        barriersP1.setOnTouchListener(
-                                new Listeners.BarrierTouchListener(barriers, interBarriers, board, widthBarrier, squareSize)
+                        shadowBuilder = (CustomViews.ImageDragShadowBuilder) CustomViews.ImageDragShadowBuilder.fromResource(
+                                board.getContext(), barriersP1.getBackground(), widthBarrier, squareSize*2 + widthBarrier
                         );
-                        barriers.get(1).setOnDragListener(new Listeners.BarrierDragListener(barriersP1));
+                        barriersP1.setFocusable(false);
+
+                        barriersP2 = (ImageView) findViewById(R.id.barriers_player2);
+                        barriersP2.setLayoutParams(barriersP1LayoutParams);
+                        barriersP2.setOnTouchListener(
+                                new Listeners.BarrierTouchListener(
+                                        barriers, interBarriers, board, widthBarrier, squareSize, shadowBuilder
+                                )
+                        );
+                        barriersP2.setFocusable(true);
+
+                        UndoRedoHandler undoRedoHandler = new UndoRedoHandler();
+                        for (FrameLayout square : squares) {
+                            square.setOnDragListener(new Listeners.BarrierDragListener(square, board, undoRedoHandler, gameController));
+                        }
+                        for (FrameLayout interBarrier : interBarriers) {
+                            interBarrier.setOnDragListener(new Listeners.BarrierDragListener(interBarrier, board, undoRedoHandler, gameController));
+                        }
+                        for (FrameLayout barrier : barriers) {
+                            barrier.setOnDragListener(new Listeners.BarrierDragListener(barrier, board, undoRedoHandler, gameController));
+                        }
 
                         secondImagePawn.setOnClickListener(new View.OnClickListener(){
                             @Override
@@ -221,29 +291,15 @@ public class Game extends AppCompatActivity {
         gameController.movePawn(x, y, idPawn);
         firstImagePawnSelected = false;
         secondImagePawnSelected = false;
-        if(idPawn == 1) {
+        toggleUser(idPawn, MOVE_PAWN);
+        if(idPawn == 1)
             firstPawnSquare = to;
-            firstImagePawn.setOnClickListener(null);
-            secondImagePawn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    pawnOnClick(2);
-                }
-            });
-        }else {
+        else
             secondPawnSquare = to;
-            secondImagePawn.setOnClickListener(null);
-            firstImagePawn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    pawnOnClick(1);
-                }
-            });
-        }
     }
 
     private void unSelectPawn(int idPawn){
-        LinkedList<Square> neighbours = idPawn == 1 ? Gameboard.THE_GAME_BOARD.positionPlayer1.getNeighbours() : Gameboard.THE_GAME_BOARD.positionPlayer2.getNeighbours();
+        LinkedList<Square> neighbours = idPawn == 1 ? gameController.getNeighboursP1() : gameController.getNeighboursP2();
         for(Square s:neighbours){
             FrameLayout f = squares.get(s.getIdSquare());
             f.setPressed(false);
@@ -256,7 +312,7 @@ public class Game extends AppCompatActivity {
             firstImagePawnSelected = !firstImagePawnSelected;
             if (firstImagePawnSelected) {
                 // hightlight neighbours
-                for (Square s : Gameboard.THE_GAME_BOARD.positionPlayer1.getNeighbours()) {
+                for (Square s : gameController.getNeighboursP1()) {
                     FrameLayout f = squares.get(s.getIdSquare());
                     f.setPressed(true);
                     Listeners.MovePawnListener movePawnListener = new Listeners.MovePawnListener(firstPawnSquare, f, this, idPawn);
@@ -264,7 +320,7 @@ public class Game extends AppCompatActivity {
                 }
             } else {
                 // unhightlight neighbours
-                for (Square s : Gameboard.THE_GAME_BOARD.positionPlayer1.getNeighbours()) {
+                for (Square s : gameController.getNeighboursP1()) {
                     FrameLayout f = squares.get(s.getIdSquare());
                     f.setPressed(false);
                     f.setOnClickListener(null);
@@ -275,7 +331,7 @@ public class Game extends AppCompatActivity {
             secondImagePawnSelected = !secondImagePawnSelected;
             if (secondImagePawnSelected) {
                 // hightlight neighbours
-                for (Square s : Gameboard.THE_GAME_BOARD.positionPlayer2.getNeighbours()) {
+                for (Square s : gameController.getNeighboursP2()) {
                     FrameLayout f = squares.get(s.getIdSquare());
                     f.setPressed(true);
                     Listeners.MovePawnListener movePawnListener = new Listeners.MovePawnListener(secondPawnSquare, f, this, idPawn);
@@ -283,7 +339,7 @@ public class Game extends AppCompatActivity {
                 }
             } else {
                 // unhightlight neighbours
-                for (Square s : Gameboard.THE_GAME_BOARD.positionPlayer2.getNeighbours()) {
+                for (Square s : gameController.getNeighboursP2()) {
                     FrameLayout f = squares.get(s.getIdSquare());
                     f.setPressed(false);
                     f.setOnClickListener(null);
@@ -299,5 +355,57 @@ public class Game extends AppCompatActivity {
         this.gameController = new Controller(this);
         setContentView(R.layout.activity_game);
         generateGameBoard(R.id.board);
+    }
+
+    public void toggleUser(int idPawn, int action) {
+        if(idPawn == 1) {
+            if(action == BARRIER_PLAYED) {
+                TextView nbBarrierText = (TextView) findViewById(R.id.nb_barriers_p1);
+                nbBarrierText.setText("x" + gameController.getNbBarriersP1());
+            }
+            firstImagePawn.setOnClickListener(null);
+            secondImagePawn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    pawnOnClick(2);
+                }
+            });
+            if(gameController.player2HasEnoughBarriers()){
+                barriersP2.setFocusable(true);
+                barriersP2.setOnTouchListener(
+                        new Listeners.BarrierTouchListener(
+                                barriers, interBarriers, board, widthBarrier, squareSize, shadowBuilder
+                        )
+                );
+            }
+            barriersP1.setFocusable(false);
+            barriersP1.setOnTouchListener(null);
+        }else {
+            if(action == BARRIER_PLAYED) {
+                TextView nbBarrierText = (TextView) findViewById(R.id.nb_barriers_p2);
+                nbBarrierText.setText("x" + gameController.getNbBarriersP2());
+            }
+            secondImagePawn.setOnClickListener(null);
+            firstImagePawn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    pawnOnClick(1);
+                }
+            });
+            if(gameController.player1HasEnoughBarriers()){
+                barriersP1.setFocusable(true);
+                barriersP1.setOnTouchListener(
+                        new Listeners.BarrierTouchListener(
+                                barriers, interBarriers, board, widthBarrier, squareSize, shadowBuilder
+                        )
+                );
+            }
+            barriersP2.setFocusable(false);
+            barriersP2.setOnTouchListener(null);
+        }
+    }
+
+    public int getCurrentPawnId() {
+        return barriersP1.isFocusable()?1:2;
     }
 }
