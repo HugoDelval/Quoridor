@@ -40,7 +40,7 @@ public class Game extends AppCompatActivity {
     public static int OFFSET_INTER_BARRIER = 4000;
     private int squareSize = 0;
     private GridLayout board;
-    private int widthBarrier = 22;
+    private int widthBarrier = 28;
     private ImageView firstImagePawn;
     private ImageView secondImagePawn;
     private FrameLayout firstPawnSquare;
