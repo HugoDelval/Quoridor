@@ -35,7 +35,7 @@ public class Listeners{
 
         @Override
         public void onClick(View v) {
-            game.movePawn(from , to, idPawn);
+            game.movePawn(to, idPawn);
         }
 
     }
@@ -75,40 +75,23 @@ public class Listeners{
     }
 
     public static class BarrierDragListener implements View.OnDragListener {
-        private final GridLayout board;
+        private final Game board;
         private final UndoRedoHandler undoRedoHandler;
         private final Controller gameController;
         private FrameLayout boardObject;
         private int id;
-        private enum boardObjectType {VERTICAL_BARRIER, HORITONTAL_BARRIER, INTER_BARRIER, SQUARE};
-        private boardObjectType type;
+        private Game.boardObjectType type;
         private int col;
         private int line;
 
-        private FrameLayout getBoardObject(int line, int col, boardObjectType t){
-            FrameLayout result = null;
-            if(t == boardObjectType.VERTICAL_BARRIER)
-                result = (FrameLayout) board.findViewById(Game.OFFSET_VERTICAL_BARRIER + line*8+col);
-            else if(t == boardObjectType.HORITONTAL_BARRIER)
-                result = (FrameLayout) board.findViewById(Game.OFFSET_HORIZONTAL_BARRIER + line*9+col);
-            else if(t == boardObjectType.INTER_BARRIER)
-                result = (FrameLayout) board.findViewById(Game.OFFSET_INTER_BARRIER + line*8+col);
-            else if(t == boardObjectType.SQUARE)
-                result = (FrameLayout) board.findViewById(Game.OFFSET_SQUARE + line*9+col);
-            if(result == null) {
-                throw new RuntimeException("Cannot find an appropriate type for this board object :/");
-            }
-            return result;
-        }
-
-        public BarrierDragListener(FrameLayout boardObject, GridLayout board, UndoRedoHandler undoRedoHandler, Controller gameController){
+        public BarrierDragListener(FrameLayout boardObject, Game board, UndoRedoHandler undoRedoHandler, Controller gameController){
             this.board = board;
             this.gameController = gameController;
             this.boardObject = boardObject;
             this.undoRedoHandler = undoRedoHandler;
             id = boardObject.getId();
             if(id >= Game.OFFSET_INTER_BARRIER){
-                type = boardObjectType.INTER_BARRIER;
+                type = Game.boardObjectType.INTER_BARRIER;
                 id = id - Game.OFFSET_INTER_BARRIER;
                 col = id%8;
                 line = id/8;
@@ -116,14 +99,14 @@ public class Listeners{
                 id = id - Game.OFFSET_HORIZONTAL_BARRIER;
                 col = id%9;
                 line = id/9;
-                type = boardObjectType.HORITONTAL_BARRIER;
+                type = Game.boardObjectType.HORITONTAL_BARRIER;
             }else if(id >= Game.OFFSET_VERTICAL_BARRIER){
                 id = id - Game.OFFSET_VERTICAL_BARRIER;
                 col = id%8;
                 line = id/8;
-                type = boardObjectType.VERTICAL_BARRIER;
+                type = Game.boardObjectType.VERTICAL_BARRIER;
             }else if(id >= Game.OFFSET_SQUARE){
-                type = boardObjectType.SQUARE;
+                type = Game.boardObjectType.SQUARE;
                 id = id - Game.OFFSET_SQUARE;
                 col = id%9;
                 line = id/9;
@@ -142,26 +125,26 @@ public class Listeners{
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
                     LinkedList<FrameLayout> subjectsOfBackgroundChanges = new LinkedList<>();
-                    if(type != boardObjectType.SQUARE) {
+                    if(type != Game.boardObjectType.SQUARE) {
                         subjectsOfBackgroundChanges.add((FrameLayout) v);
-                        if (type == boardObjectType.INTER_BARRIER) {
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col, boardObjectType.VERTICAL_BARRIER));
-                            subjectsOfBackgroundChanges.add(getBoardObject(line + 1, col, boardObjectType.VERTICAL_BARRIER));
-                        } else if (type == boardObjectType.HORITONTAL_BARRIER) {
+                        if (type == Game.boardObjectType.INTER_BARRIER) {
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col, Game.boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line + 1, col, Game.boardObjectType.VERTICAL_BARRIER));
+                        } else if (type == Game.boardObjectType.HORITONTAL_BARRIER) {
                             if ((col == 0 || x > xMiddle) && col != 8) {
-                                subjectsOfBackgroundChanges.add(getBoardObject(line, col + 1, boardObjectType.HORITONTAL_BARRIER));
-                                subjectsOfBackgroundChanges.add(getBoardObject(line, col, boardObjectType.INTER_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line, col + 1, Game.boardObjectType.HORITONTAL_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line, col, Game.boardObjectType.INTER_BARRIER));
                             } else {
-                                subjectsOfBackgroundChanges.add(getBoardObject(line, col - 1, boardObjectType.HORITONTAL_BARRIER));
-                                subjectsOfBackgroundChanges.add(getBoardObject(line, col - 1, boardObjectType.INTER_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line, col - 1, Game.boardObjectType.HORITONTAL_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line, col - 1, Game.boardObjectType.INTER_BARRIER));
                             }
-                        } else if (type == boardObjectType.VERTICAL_BARRIER) {
+                        } else if (type == Game.boardObjectType.VERTICAL_BARRIER) {
                             if ((line == 0 || y > yMiddle) && line != 8) {
-                                subjectsOfBackgroundChanges.add(getBoardObject(line + 1, col, boardObjectType.VERTICAL_BARRIER));
-                                subjectsOfBackgroundChanges.add(getBoardObject(line, col, boardObjectType.INTER_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line + 1, col, Game.boardObjectType.VERTICAL_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line, col, Game.boardObjectType.INTER_BARRIER));
                             } else {
-                                subjectsOfBackgroundChanges.add(getBoardObject(line-1, col, boardObjectType.VERTICAL_BARRIER));
-                                subjectsOfBackgroundChanges.add(getBoardObject(line-1, col, boardObjectType.INTER_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col, Game.boardObjectType.VERTICAL_BARRIER));
+                                subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col, Game.boardObjectType.INTER_BARRIER));
                             }
                         }
                     }else{
@@ -353,37 +336,37 @@ public class Listeners{
                             }
                         }
                         if(up)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col, boardObjectType.HORITONTAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col, Game.boardObjectType.HORITONTAL_BARRIER));
                         if(down)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col, boardObjectType.HORITONTAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col, Game.boardObjectType.HORITONTAL_BARRIER));
                         if(right)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col, boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col, Game.boardObjectType.VERTICAL_BARRIER));
                         if(left)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col-1, boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col-1, Game.boardObjectType.VERTICAL_BARRIER));
                         if(interUL)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col-1, boardObjectType.INTER_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col-1, Game.boardObjectType.INTER_BARRIER));
                         if(interUR)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col, boardObjectType.INTER_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col, Game.boardObjectType.INTER_BARRIER));
                         if(interDR)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col, boardObjectType.INTER_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col, Game.boardObjectType.INTER_BARRIER));
                         if(interDL)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col-1, boardObjectType.INTER_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col-1, Game.boardObjectType.INTER_BARRIER));
                         if(UUL)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col-1, boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col-1, Game.boardObjectType.VERTICAL_BARRIER));
                         if(UUR)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col, boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col, Game.boardObjectType.VERTICAL_BARRIER));
                         if(RRU)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col+1, boardObjectType.HORITONTAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col+1, Game.boardObjectType.HORITONTAL_BARRIER));
                         if(RRD)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col+1, boardObjectType.HORITONTAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col+1, Game.boardObjectType.HORITONTAL_BARRIER));
                         if(DDR)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line+1, col, boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line+1, col, Game.boardObjectType.VERTICAL_BARRIER));
                         if(DDL)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line+1, col-1, boardObjectType.VERTICAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line+1, col-1, Game.boardObjectType.VERTICAL_BARRIER));
                         if(LLD)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line, col-1, boardObjectType.HORITONTAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line, col-1, Game.boardObjectType.HORITONTAL_BARRIER));
                         if(LLU)
-                            subjectsOfBackgroundChanges.add(getBoardObject(line-1, col-1, boardObjectType.HORITONTAL_BARRIER));
+                            subjectsOfBackgroundChanges.add(board.getBoardObject(line-1, col-1, Game.boardObjectType.HORITONTAL_BARRIER));
                     }
                     undoRedoHandler.todo(new UndoRedoBarriers(subjectsOfBackgroundChanges), gameController);
                     undoRedoHandler.setUndoAutoOnAdd(true);

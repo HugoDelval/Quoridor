@@ -79,21 +79,18 @@ public class Square {
         try {
             this.accessibles.remove(accessible);
         }catch (Exception ignored){}
+        calculateNeighbours();
     }
 
     public void addAccessible(Square accessible) {
         if(accessible != null)
             this.accessibles.add(accessible);
+        calculateNeighbours();
     }
 
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Square && ((Square) obj).idSquare == this.idSquare;
-    }
-
-    @Override
-    public String toString(){
-        return "Square at (x=" + x + ", y=" + y + ")";
     }
 
     public void calculateNeighbours() {
@@ -116,5 +113,14 @@ public class Square {
                 neighbours.add(accessibleSquare);
             }
         }
+    }
+
+    public boolean isAccessible(Square squareToGo) {
+        return neighbours.contains(squareToGo);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
     }
 }

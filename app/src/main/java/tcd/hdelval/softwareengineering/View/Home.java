@@ -19,13 +19,24 @@ public class Home extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_home);
 
-        /* PLAY */
-        Button playButton = (Button) findViewById(R.id.play);
-        playButton.setOnClickListener(new View.OnClickListener() {
+        /* PLAY HUMAN */
+        Button playHumanButton = (Button) findViewById(R.id.play_human);
+        playHumanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent wantToPlayAGame = new Intent(getBaseContext(), Game.class);
-//                wantToPlayAGame.putExtra("PersonID", personID);
+                wantToPlayAGame.putExtra("Against", "HUMAN");
+                startActivity(wantToPlayAGame);
+            }
+        });
+
+        /* PLAY AI */
+        Button playAIButton = (Button) findViewById(R.id.play_ai);
+        playAIButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent wantToPlayAGame = new Intent(getBaseContext(), Game.class);
+                wantToPlayAGame.putExtra("Against", "AI");
                 startActivity(wantToPlayAGame);
             }
         });

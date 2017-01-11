@@ -48,12 +48,14 @@
                 <Button
                     android:background="?android:attr/selectableItemBackground"
                     android:textColor="@color/colorText"
-                    android:text="   Play   "
+                    android:text="Play against\na human"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/play"
+                    android:id="@+id/play_human"
                     android:paddingRight="40dip"
                     android:paddingLeft="40dip"
+                    android:paddingTop="10dip"
+                    android:paddingBottom="10dip"
                     android:textSize="25dp"
                     />
             </FrameLayout>
@@ -67,33 +69,17 @@
                 <Button
                     android:background="?android:attr/selectableItemBackground"
                     android:textColor="@color/colorText"
-                    android:text="action2"
+                    android:text="Play against\nan AI  "
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/action2"
+                    android:id="@+id/play_ai"
                     android:paddingRight="40dip"
                     android:paddingLeft="40dip"
+                    android:paddingTop="10dip"
+                    android:paddingBottom="10dip"
                     android:textSize="25dp" />
             </FrameLayout>
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:layout_marginBottom="15dp"
-                android:layout_marginTop="10dp">
-                <Button
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@color/colorText"
-                    android:text="action3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/action3"
-                    android:paddingRight="40dip"
-                    android:paddingLeft="40dip"
-                    android:textSize="25dp"
-                     />
-            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

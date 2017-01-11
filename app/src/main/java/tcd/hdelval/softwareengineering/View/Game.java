@@ -39,6 +39,7 @@ public class Game extends AppCompatActivity {
     public static int OFFSET_HORIZONTAL_BARRIER = 3000;
     public static int OFFSET_INTER_BARRIER = 4000;
     private int squareSize = 0;
+    public enum boardObjectType {VERTICAL_BARRIER, HORITONTAL_BARRIER, INTER_BARRIER, SQUARE};
     private GridLayout board;
     private int widthBarrier = 28;
     private ImageView firstImagePawn;
@@ -52,6 +53,7 @@ public class Game extends AppCompatActivity {
     private ImageView barriersP1;
     private ImageView barriersP2;
     private CustomViews.ImageDragShadowBuilder shadowBuilder;
+    private boolean ai;
 
     /**
      * Get the square at the coordinate (x,y)
@@ -60,9 +62,25 @@ public class Game extends AppCompatActivity {
      * @param y The vertical coordinate
      * @return the square at the position (x, y)
      */
-    private FrameLayout getSquare(int x, int y){
+    public FrameLayout getSquare(int x, int y){
         int targetPosition = y*9+x;
         return squares.get(targetPosition);
+    }
+
+    public FrameLayout getBoardObject(int line, int col, boardObjectType t){
+        FrameLayout result = null;
+        if(t == boardObjectType.VERTICAL_BARRIER)
+            result = (FrameLayout) board.findViewById(Game.OFFSET_VERTICAL_BARRIER + line*8+col);
+        else if(t == boardObjectType.HORITONTAL_BARRIER)
+            result = (FrameLayout) board.findViewById(Game.OFFSET_HORIZONTAL_BARRIER + line*9+col);
+        else if(t == boardObjectType.INTER_BARRIER)
+            result = (FrameLayout) board.findViewById(Game.OFFSET_INTER_BARRIER + line*8+col);
+        else if(t == boardObjectType.SQUARE)
+            result = (FrameLayout) board.findViewById(Game.OFFSET_SQUARE + line*9+col);
+        if(result == null) {
+            throw new RuntimeException("Cannot find an appropriate type for this board object :/");
+        }
+        return result;
     }
 
     /**
@@ -224,13 +242,13 @@ public class Game extends AppCompatActivity {
 
                         UndoRedoHandler undoRedoHandler = new UndoRedoHandler();
                         for (FrameLayout square : squares) {
-                            square.setOnDragListener(new Listeners.BarrierDragListener(square, board, undoRedoHandler, gameController));
+                            square.setOnDragListener(new Listeners.BarrierDragListener(square, Game.this, undoRedoHandler, gameController));
                         }
                         for (FrameLayout interBarrier : interBarriers) {
-                            interBarrier.setOnDragListener(new Listeners.BarrierDragListener(interBarrier, board, undoRedoHandler, gameController));
+                            interBarrier.setOnDragListener(new Listeners.BarrierDragListener(interBarrier, Game.this, undoRedoHandler, gameController));
                         }
                         for (FrameLayout barrier : barriers) {
-                            barrier.setOnDragListener(new Listeners.BarrierDragListener(barrier, board, undoRedoHandler, gameController));
+                            barrier.setOnDragListener(new Listeners.BarrierDragListener(barrier, Game.this, undoRedoHandler, gameController));
                         }
 
                         secondImagePawn.setOnClickListener(new View.OnClickListener(){
@@ -283,7 +301,7 @@ public class Game extends AppCompatActivity {
 
     }
 
-    public void movePawn(FrameLayout from, FrameLayout to, int idPawn){
+    public void movePawn(FrameLayout to, int idPawn){
         int x = squares.indexOf(to) % 9;
         int y = squares.indexOf(to) / 9;
         unSelectPawn(idPawn);
@@ -352,6 +370,22 @@ public class Game extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String against;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                against = null;
+            } else {
+                against = extras.getString("Against");
+            }
+        } else {
+            against = (String) savedInstanceState.getSerializable("Against");
+        }
+        if(against.equals("HUMAN")){
+            this.ai = false;
+        }else if(against.equals("AI")){
+            this.ai = true;
+        }
         this.gameController = new Controller(this);
         setContentView(R.layout.activity_game);
         generateGameBoard(R.id.board);
@@ -386,13 +420,14 @@ public class Game extends AppCompatActivity {
                 nbBarrierText.setText("x" + gameController.getNbBarriersP2());
             }
             secondImagePawn.setOnClickListener(null);
-            firstImagePawn.setOnClickListener(new View.OnClickListener() {
+            if(!ai)
+                firstImagePawn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     pawnOnClick(1);
                 }
             });
-            if(gameController.player1HasEnoughBarriers()){
+            if(!ai && gameController.player1HasEnoughBarriers()){
                 barriersP1.setFocusable(true);
                 barriersP1.setOnTouchListener(
                         new Listeners.BarrierTouchListener(
@@ -402,10 +437,12 @@ public class Game extends AppCompatActivity {
             }
             barriersP2.setFocusable(false);
             barriersP2.setOnTouchListener(null);
+            if(ai)
+                gameController.aiMove();
         }
     }
 
     public int getCurrentPawnId() {
-        return barriersP1.isFocusable()?1:2;
+        return barriersP2.isFocusable()?2:1;
     }
 }

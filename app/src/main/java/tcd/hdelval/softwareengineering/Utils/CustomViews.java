@@ -48,7 +48,7 @@ public class CustomViews {
             shadowSize.y = shadow.getMinimumHeight();
 
             shadowTouchPoint.x = shadowSize.x / 2;
-            shadowTouchPoint.y = shadowSize.y ;
+            shadowTouchPoint.y = shadowSize.y / 2;
         }
     }
 }
