@@ -1,5 +1,8 @@
+# DEMO
+
+https://drive.google.com/file/d/0BzPQ2skYzQgeaThOU2l3T3NjWmM/view?usp=sharing
+
 # Quoridor
-One semester Trinity project in software engineering - Quoridor Game with AI
 
 This project is an Android game, it allows the user to play Quoridor against another player (on the same phone) or against a basic AI based on Min-Max
 
