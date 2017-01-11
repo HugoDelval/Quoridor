@@ -7,16 +7,16 @@ This project is an Android game, it allows the user to play Quoridor against ano
 
 I based my work on several papers :
 
-	https://project.dke.maastrichtuniversity.nl/games/files/bsc/Mertens_BSc-paper.pdf
-	http://www.cs.huji.ac.il/~ai/projects/2012/Quoridor/files/report.pdf
-	http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.100.5204&rep=rep1&type=pdf
+* https://project.dke.maastrichtuniversity.nl/games/files/bsc/Mertens_BSc-paper.pdf
+* http://www.cs.huji.ac.il/~ai/projects/2012/Quoridor/files/report.pdf
+* http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.100.5204&rep=rep1&type=pdf
 
 Some simple features (without costful graph traveling) extracted from the previous papers:
 
-	position (are we close from the finish line?)
-	beenThere (each square has a weight incresing each time the pawn pass by it) -> easy and powerfull
-	number of walls (if you have more walls, you can trap your oponent)
-	number of walls in front of you
+* position (are we close from the finish line?)
+* beenThere (each square has a weight incresing each time the pawn pass by it) -> easy and powerfull
+* number of walls (if you have more walls, you can trap your oponent)
+* number of walls in front of you
 
 ## MinMax pruning
 
